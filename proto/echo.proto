@@ -7,6 +7,8 @@ option go_package = "grpc-echo/proto;proto";
 service EchoService{
     rpc Echo(EchoRequest) returns (EchoResponse);
     rpc UpperCase(EchoRequest) returns (EchoResponse);
+    rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
+    rpc MarkMessageAsRead (MarkMessageAsReadRequest) returns (MarkMessageAsReadResponse);
 }
 
 message EchoRequest{
@@ -15,4 +17,28 @@ message EchoRequest{
 
 message EchoResponse{
     string message = 1;
+}
+
+message GetMessagesRequest{
+    int32 limit = 1;
+}
+
+message StoredMessage{
+    uint32 id = 1;
+    string content = 2;
+    int64 created_unix = 3;
+    bool read = 4;
+}
+
+message GetMessagesResponse{
+    repeated StoredMessage messages = 1;
+}
+
+message MarkMessageAsReadRequest{
+    int64 message_id = 1;
+
+}
+
+message MarkMessageAsReadResponse{
+    StoredMessage messages = 1;
 }

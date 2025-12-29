@@ -19,8 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion8
 
 const (
-	EchoService_Echo_FullMethodName      = "/echo.EchoService/Echo"
-	EchoService_UpperCase_FullMethodName = "/echo.EchoService/UpperCase"
+	EchoService_Echo_FullMethodName              = "/echo.EchoService/Echo"
+	EchoService_UpperCase_FullMethodName         = "/echo.EchoService/UpperCase"
+	EchoService_GetMessages_FullMethodName       = "/echo.EchoService/GetMessages"
+	EchoService_MarkMessageAsRead_FullMethodName = "/echo.EchoService/MarkMessageAsRead"
 )
 
 // EchoServiceClient is the client API for EchoService service.
@@ -29,6 +31,8 @@ const (
 type EchoServiceClient interface {
 	Echo(ctx context.Context, in *EchoRequest, opts ...grpc.CallOption) (*EchoResponse, error)
 	UpperCase(ctx context.Context, in *EchoRequest, opts ...grpc.CallOption) (*EchoResponse, error)
+	GetMessages(ctx context.Context, in *GetMessagesRequest, opts ...grpc.CallOption) (*GetMessagesResponse, error)
+	MarkMessageAsRead(ctx context.Context, in *MarkMessageAsReadRequest, opts ...grpc.CallOption) (*MarkMessageAsReadResponse, error)
 }
 
 type echoServiceClient struct {
@@ -59,12 +63,34 @@ func (c *echoServiceClient) UpperCase(ctx context.Context, in *EchoRequest, opts
 	return out, nil
 }
 
+func (c *echoServiceClient) GetMessages(ctx context.Context, in *GetMessagesRequest, opts ...grpc.CallOption) (*GetMessagesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMessagesResponse)
+	err := c.cc.Invoke(ctx, EchoService_GetMessages_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *echoServiceClient) MarkMessageAsRead(ctx context.Context, in *MarkMessageAsReadRequest, opts ...grpc.CallOption) (*MarkMessageAsReadResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(MarkMessageAsReadResponse)
+	err := c.cc.Invoke(ctx, EchoService_MarkMessageAsRead_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // EchoServiceServer is the server API for EchoService service.
 // All implementations must embed UnimplementedEchoServiceServer
 // for forward compatibility
 type EchoServiceServer interface {
 	Echo(context.Context, *EchoRequest) (*EchoResponse, error)
 	UpperCase(context.Context, *EchoRequest) (*EchoResponse, error)
+	GetMessages(context.Context, *GetMessagesRequest) (*GetMessagesResponse, error)
+	MarkMessageAsRead(context.Context, *MarkMessageAsReadRequest) (*MarkMessageAsReadResponse, error)
 	mustEmbedUnimplementedEchoServiceServer()
 }
 
@@ -77,6 +103,12 @@ func (UnimplementedEchoServiceServer) Echo(context.Context, *EchoRequest) (*Echo
 }
 func (UnimplementedEchoServiceServer) UpperCase(context.Context, *EchoRequest) (*EchoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpperCase not implemented")
+}
+func (UnimplementedEchoServiceServer) GetMessages(context.Context, *GetMessagesRequest) (*GetMessagesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMessages not implemented")
+}
+func (UnimplementedEchoServiceServer) MarkMessageAsRead(context.Context, *MarkMessageAsReadRequest) (*MarkMessageAsReadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MarkMessageAsRead not implemented")
 }
 func (UnimplementedEchoServiceServer) mustEmbedUnimplementedEchoServiceServer() {}
 
@@ -127,6 +159,42 @@ func _EchoService_UpperCase_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _EchoService_GetMessages_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMessagesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EchoServiceServer).GetMessages(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EchoService_GetMessages_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EchoServiceServer).GetMessages(ctx, req.(*GetMessagesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _EchoService_MarkMessageAsRead_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MarkMessageAsReadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(EchoServiceServer).MarkMessageAsRead(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: EchoService_MarkMessageAsRead_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(EchoServiceServer).MarkMessageAsRead(ctx, req.(*MarkMessageAsReadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // EchoService_ServiceDesc is the grpc.ServiceDesc for EchoService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -141,6 +209,14 @@ var EchoService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "UpperCase",
 			Handler:    _EchoService_UpperCase_Handler,
+		},
+		{
+			MethodName: "GetMessages",
+			Handler:    _EchoService_GetMessages_Handler,
+		},
+		{
+			MethodName: "MarkMessageAsRead",
+			Handler:    _EchoService_MarkMessageAsRead_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

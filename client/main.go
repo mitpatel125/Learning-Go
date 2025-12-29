@@ -25,7 +25,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
-	resp, err := client.UpperCase(ctx, &pb.EchoRequest{
+	resp, err := client.Echo(ctx, &pb.EchoRequest{
 		Message: "grpc is now clicking",
 	})
 	if err != nil {
@@ -33,4 +33,34 @@ func main() {
 	}
 
 	log.Println("Client received:", resp.Message)
+
+	listResp, err := client.GetMessages(ctx, &pb.GetMessagesRequest{Limit: 5})
+	if err != nil{
+		log.Fatal(err)
+	}
+
+
+	log.Println("Latest messages:")
+	for _, m := range listResp.Messages{
+		t := time.Unix(m.CreatedUnix, 0).Format(time.RFC3339)
+		log.Printf("- #%d [%s] %s", m.Id, t, m.Content)
+	}
+
+	if len(listResp.Messages) > 0{
+		id:= listResp.Messages[0].Id
+
+		readResp, err := client.MarkMessageAsRead(ctx, &pb.MarkMessageAsReadRequest{
+			MessageId: int64(id),
+		})
+		if err != nil{
+			log.Fatal(err)
+		}
+		log.Printf(
+			"marked as read : #%d (%v)",
+			readResp.Messages.Id,
+			readResp.Messages.Read,
+		)
+	}
+
+
 }
