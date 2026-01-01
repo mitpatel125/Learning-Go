@@ -1,0 +1,5 @@
+version: v1
+name: buf.build/mitpa/grpc-echo
+
+deps:
+  - buf.build/googleapis/googleapis

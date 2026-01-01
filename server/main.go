@@ -107,6 +107,34 @@ func (s *echoServer) MarkMessageAsRead(
 	}, nil
 }
 
+func(s *echoServer) GetMessageByID(
+	ctx  context.Context,
+	req *pb.GetMessageByIDRequest,
+)(*pb.GetMessageByIDResponse, error){
+	var msg models.Message
+	err := s.db.First(&msg, req.MessageId).Error
+	
+	if err != nil{
+		if errors.Is(err, gorm.ErrRecordNotFound){
+			return nil ,status.Error(codes.NotFound, "failed to load message")
+		}
+		return nil, status.Error(codes.Internal, "failed to load message")
+	}
+	return &pb.GetMessageByIDResponse{
+		Message: &pb.StoredMessage{
+			Id : uint32(msg.ID),
+			Content: msg.Content,
+			CreatedUnix: msg.CreatedAt.Unix(),
+			Read: msg.Read,
+		},
+	}, nil
+
+
+}
+	
+
+
+
 
 func main(){
 	db, err := gorm.Open(sqlite.Open("messages.db"), &gorm.Config{})
@@ -126,7 +154,10 @@ func main(){
 	pb.RegisterEchoServiceServer(grpcServer, &echoServer{db: db})
 
 	log.Println("Echo sever running on :50051")
+	go startGateway()
 	grpcServer.Serve(lis)
+
+	
 
 
 }

@@ -49,6 +49,7 @@ func main() {
 	if len(listResp.Messages) > 0{
 		id:= listResp.Messages[0].Id
 
+
 		readResp, err := client.MarkMessageAsRead(ctx, &pb.MarkMessageAsReadRequest{
 			MessageId: int64(id),
 		})
@@ -60,7 +61,21 @@ func main() {
 			readResp.Messages.Id,
 			readResp.Messages.Read,
 		)
-	}
+		getResp, err :=  client.GetMessageByID(ctx, &pb.GetMessageByIDRequest{
+			MessageId: int64(id),
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
 
+		log.Printf(
+			"fetched by id: #%d | %s | read=%v",
+    	getResp.Message.Id,
+    	getResp.Message.Content,
+    	getResp.Message.Read,)
+	
+
+
+	}
 
 }

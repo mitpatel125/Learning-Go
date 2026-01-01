@@ -4,11 +4,18 @@ package echo;
 
 option go_package = "grpc-echo/proto;proto";
 
+import "google/api/annotations.proto";
+
 service EchoService{
     rpc Echo(EchoRequest) returns (EchoResponse);
     rpc UpperCase(EchoRequest) returns (EchoResponse);
     rpc GetMessages(GetMessagesRequest) returns (GetMessagesResponse);
     rpc MarkMessageAsRead (MarkMessageAsReadRequest) returns (MarkMessageAsReadResponse);
+    rpc getMessageByID (getMessageByIDRequest) returns(getMessageByIDResponse){
+        option (google.api.http) = {
+            get: "/v1/messages/{message_id}"
+        };
+    }
 }
 
 message EchoRequest{
@@ -41,4 +48,13 @@ message MarkMessageAsReadRequest{
 
 message MarkMessageAsReadResponse{
     StoredMessage messages = 1;
+}
+
+message getMessageByIDRequest{
+    int64 message_id = 1;
+
+}
+
+message getMessageByIDResponse{
+    StoredMessage message = 1;
 }
